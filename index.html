@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="https://uicdn.toast.com/tui.time-picker/latest/tui-time-picker.css">
+    <title>Baroutine</title>
+</head>
+<body>
+    <header>
+        <h1 id="routine-title">Routine TimeTable</h1>
+    </header>
+    <article id="routine">
+        <section id="routine-info" style="display: none;">
+            <!-- 루틴 테이블을 보여줄겁니다! 디자인3차에서 추가 -->
+        </section>
+    
+        <section id="timetable" class="center">
+            <div id="time-line" style="--deg:0deg;">
+                <ol id="quarter-time">
+                    <li>00:00AM</li>
+                    <li>6:00PM</li>
+                    <li>00:00PM</li>
+                    <li>6:00AM</li>
+                </ol>
+                <div id="routine-line" class="center">
+                    <div class="center text-center">
+                        <h2 class="point2">Routine</h2>
+                        <span>다음 업데이트 예정!</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    
+        <section id="time-info">
+            <h1 id="routine-completion-rate" class="point2">
+                하루의 시작은 내가 정한다<br>바른생활이 아니라도<br>나의 시간이<br>값질 수 있도록
+            </h1>
+            <div id="time">
+                <!--
+                <form id="start" action="">
+                    <label class="title" for="start-time">시작시간 : </label>
+                    <input id="start-time" name="start-time" type="time" value="09:00">
+                    <input type="submit">
+                </form>
+                -->
+                <div id="start">
+                    <span class="title">시작시간 : </span>
+                    <div id="tui-time-picker-container">
+                        <div id="timepicker-selectbox"></div>
+                    </div>
+                </div>
+                <div id="now">
+                    <span class="title">현재시간 : </span>
+                    <div id="now-time" class="time">
+                        <span>00</span><span>00</span> <span>PM</span>
+                    </div>
+                </div>
+                <div id="during">
+                    <span class="title">깨어있는 시간</span>
+                    <div id="during-time" class="time">
+                        <span>00</span><span>00</span><span>00</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </article>
+    <footer></footer>
+    <script src="https://uicdn.toast.com/tui.time-picker/latest/tui-time-picker.js"></script>
+    <script src="./js/script.js"></script>
+</body>
+</html>
