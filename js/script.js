@@ -3,14 +3,31 @@
 function routineListShow(element) {
     const routineList = document.querySelector('#routine-list');
     const routineListNum = routineList.querySelectorAll('li:not(#add)').length;
-    element.classList.toggle('on')
     const button = document.querySelector('#routine-list-show-bt');
-    if (button.classList.contains('on')) {
-        routineList.style.height = `${88*routineListNum + 72}px`;
-    } else {
-        routineList.removeAttribute('style');
+    function toggle () { // 아마 다른곳에도 쓴다면 이 토글을 밖으로 빼서 사용해야할거같음!!!! 쉽게될듯!
+        console.log('toggle 실행');
+        element.classList.toggle('on'); // popup 
+        element.classList.toggle('popUp'); // 열린 popup임을 표시
+        routineList.classList.toggle('popUpContents'); // 열린 popupContents임을 표시
+        if (button.classList.contains('on')) {
+            routineList.style.height = `${88*routineListNum + 72}px`;
+        } else {
+            routineList.removeAttribute('style');
+        }
     }
+    toggle();
 }
+document.querySelector('html').addEventListener('click', function (event) {
+    if (document.querySelector('.popUp') !== null ) {
+        if (event.target.closest('.popUp') || event.target.closest('.popUpContents')) { 
+            /**버튼이나 콘텐츠 클릭 시 유지*/
+            return;
+        } else {/*그외 클릭시 정보 닫기 */
+            console.log('그외클릭');
+            routineListShow(document.querySelector('.popUp'));
+        }
+    }
+});
 /********************* header END ******************/
 /********************* article routine START ******************/
 
