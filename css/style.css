@@ -163,10 +163,15 @@ section#routine-title #routine-list-show-bt {
 section#routine-title #routine-list-show-bt.on,
 section#routine-title #routine-list-show-bt:hover {
     box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.2);
+    background-color: #fff;
 }
 section#routine-title #routine-list-show-bt img {
     transition: transform 0.2s ease-out;
     transform: rotateX(180deg);
+}
+section#routine-title #routine-list-show-bt.on img,
+section#routine-title #routine-list-show-bt:hover img {
+    filter: invert(100%);
 }
 section#routine-title #routine-list-show-bt.on img {
     transform: rotateX(0deg);
