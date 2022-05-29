@@ -10,7 +10,19 @@
 </head>
 <body>
     <header>
-        <h1 id="routine-title">Routine TimeTable</h1>
+        <section id="routine-title">
+            <div id="current-title-wrapper">
+                <h1 id="current-title" class="text-overflow-hidden">Routine Title1</h1>
+                <button id="routine-list-show-bt" onclick="routineListShow(this)"><img class="icon" src="./img/ic-upbutton.svg" alt="routine-list-show-button-icon"></button>    
+            </div>
+            <ul id="routine-list" class="font-bg-color">
+                <li class="current text-overflow-hidden"><h1 class="text-overflow-hidden">Routine Title1</h1><button class="delete-bt" onclick="routineDelete(this)"><img class="icon" src="./img/ic-delete-bgcolor.svg" alt="delete-button-icon"></button></li>
+                <li class="text-overflow-hidden"><h1 class="text-overflow-hidden">Routine Title2</h1><button class="delete-bt" onclick="routineDelete(this)"><img class="icon" src="./img/ic-delete-bgcolor.svg" alt="delete-button-icon"></button></li>
+                <li class="text-overflow-hidden"><h1 class="text-overflow-hidden">Routine Title3</h1><button class="delete-bt" onclick="routineDelete(this)"><img class="icon" src="./img/ic-delete-bgcolor.svg" alt="delete-button-icon"></button></li>
+                <li class="text-overflow-hidden"><h1 class="text-overflow-hidden">글자수넘침 테스트입니다</h1><button class="delete-bt" onclick="routineDelete(this)"><img class="icon" src="./img/ic-delete-bgcolor.svg" alt="delete-button-icon"></button></li>
+                <li id="add"><button id="add-routine-bt">+ new routine</button></li>
+            </ul>
+        </section>
     </header>
     <article id="routine">
         <section id="routine-info" style="display: none;">

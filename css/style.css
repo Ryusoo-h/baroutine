@@ -47,6 +47,7 @@
     --point-color1: #FF8585;
     --point-color2: #FFEF64;
     --font-color: #fff;
+    --font-bg-color: rgba(255, 255, 255, 0.1);
 }
 ::selection {
     background: var(--point-color2);
@@ -71,7 +72,10 @@ body {
 }
 .point1 {color: var(--point-color1);}
 .point2 {color: var(--point-color2);}
-.font-bg-color { background-color: rgba(255, 255, 255, 0.1);}
+.font-bg-color { 
+    background-color: var(--font-bg-color); 
+    backdrop-filter: blur(10px);
+}
 
 .center {
     position: absolute;
@@ -95,14 +99,136 @@ h1, h2, h3, h4, h5, h6 {
     line-height: 112%;
 }
 h1 {
-    font-size: 3.125vw; /* 60px */
+    font-size: 3.125vw; /* 60px; */
 }
-
+button {
+    border: none;
+    border-radius: 10px;
+    background-color: var(--font-bg-color);
+    padding: 10px;
+    cursor: pointer;
+    -ms-user-select:none;
+    -moz-user-select:-moz-none;
+    -khtml-user-select:none;
+    -webkit-user-select:none;
+    user-select:none;
+}
+img.icon {
+    width: 30px;
+    height: 30px;
+    -ms-user-select:none;
+    -moz-user-select:-moz-none;
+    -khtml-user-select:none;
+    -webkit-user-select:none;
+    user-select:none;
+}
+.text-overflow-hidden {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+/*************************header START*********************************/
 header {
     padding: 20px;
+    position: relative;
+    z-index: 9999;
 }
-
-/**********************************************************/
+section#routine-title {
+    position: relative;
+}
+#current-title-wrapper,
+section#routine-title #routine-list {
+    position: relative;
+    width: 464px;
+    font-size: 0;
+}
+section#routine-title #current-title {
+    width: 400px;
+}
+section#routine-title #current-title,
+section#routine-title #routine-list > li {
+    font-family: var(--point-font);
+    font-size: 60px; /* 3.125vw; */
+    line-height: 112%;
+    padding: 0 0 12px 15px;
+    cursor: pointer;
+}
+section#routine-title #routine-list-show-bt {
+    position: absolute;
+    top: 2px;
+    right: 0;
+    padding: 10px 15px;
+    transition: box-shadow 0.2s ease-in;
+}
+section#routine-title #routine-list-show-bt.on,
+section#routine-title #routine-list-show-bt:hover {
+    box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.2);
+}
+section#routine-title #routine-list-show-bt img {
+    transition: transform 0.2s ease-out;
+    transform: rotateX(180deg);
+}
+section#routine-title #routine-list-show-bt.on img {
+    transform: rotateX(0deg);
+}
+section#routine-title #routine-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    border-radius: 10px;
+    box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    height: 0;
+    transition: height 0.3s ease-out;
+}
+section#routine-title #routine-list > li {
+    padding: 10px 12px 10px 0;
+    list-style: none;
+    transition: text-shadow 0.2s ease-in-out;
+    font-size: 0;
+}
+section#routine-title #routine-list > li > h1 {
+    display: inline-block;
+    width: 400px;
+    padding-left: 15px;
+}
+section#routine-title #routine-list > li:not(.current):hover {
+    text-shadow: 3px 3px 8px rgb(0 0 0 / 60%);
+}
+section#routine-title #routine-list > li.current > h1 {
+    color: var(--font-bg-color);
+}
+section#routine-title #routine-list > li > button.delete-bt {
+    float: right;
+    vertical-align: top;
+    background: unset;
+    padding: 12px 0 0;
+    margin-left: 12px;
+}
+section#routine-title #routine-list > li > button.delete-bt > img.icon {
+    width: 40px;
+    height: 40px;
+    transition: transform 0.1s ease-out;
+}
+section#routine-title #routine-list > li > button.delete-bt:hover img.icon {
+    transform: rotateZ(15deg);
+}
+section#routine-title #routine-list > li > #add-routine-bt {
+    background: unset;
+    font-size: 36px;
+    display: block;
+    width: calc(100% - 40px);
+    text-align: center;
+    padding: 0 0 10px;
+    color: var(--font-color);
+    transition: text-shadow 0.3s ease-in-out, transform 0.4s ease-in-out;
+}
+section#routine-title #routine-list > li > #add-routine-bt:hover {
+    color: var(--point-color2);
+    text-shadow: 3px 3px 8px rgb(0 0 0 / 60%);
+    transform: translateY(-3px);
+}
+/*************************header END*********************************/
 
 article#routine {
     position: relative;

@@ -1,3 +1,19 @@
+
+/********************* header START ******************/
+function routineListShow(element) {
+    const routineList = document.querySelector('#routine-list');
+    const routineListNum = routineList.querySelectorAll('li:not(#add)').length;
+    element.classList.toggle('on')
+    const button = document.querySelector('#routine-list-show-bt');
+    if (button.classList.contains('on')) {
+        routineList.style.height = `${88*routineListNum + 72}px`;
+    } else {
+        routineList.removeAttribute('style');
+    }
+}
+/********************* header END ******************/
+/********************* article routine START ******************/
+
 const IsExist = (something) => {
     return something !== null; // something이 존재하면 true를 반환함
 }
@@ -145,3 +161,4 @@ function printEverySecond () { //1초마다 실행될 것들 모음
 printEverySecond();
 setInterval(printEverySecond, 1000);
 
+/********************* article routine END ******************/
