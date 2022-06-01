@@ -52,6 +52,10 @@ function printTimeGauge(currentHour, currentMinutes, currentSeconds, startTime) 
     const startTimeForHour = parseInt(startTime['hour']) + (parseInt(startTime['minutes']) / 60);
     const currentTimeForHour = parseInt(currentHour) + (parseInt(currentMinutes) / 60);
     let timeGauge = startTimeForHour < 12 ? currentTimeForHour - startTimeForHour : currentTimeForHour + (24 - startTimeForHour);
+    if(timeGauge < 0) {
+        timeGauge += 24;
+    }
+    console.log(timeGauge);
     // 시작시간으로부터 현재시간까지의 시간
     const degree = ((timeGauge/24) * 100) * 3.6;
     // 24시간을 360도로 맞춰 계산 : 시간게이지를 퍼센트로 만들고, 그 퍼센트를 각도로 만듬
