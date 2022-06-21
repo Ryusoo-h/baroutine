@@ -77,16 +77,6 @@ body {
     backdrop-filter: blur(10px);
 }
 
-.center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-.text-center {
-    text-align: center;
-}
-
 section, html, body, div, header, footer, nav, ul, ol, li, a, h1, h2, h3, h4, h5, h6 {
   margin: 0;
   padding: 0;
@@ -98,7 +88,9 @@ h1, h2, h3, h4, h5, h6 {
     font-family: var(--point-font);
     line-height: 112%;
 }
-h1 {
+h1,
+.r-title {
+    font-family: var(--point-font);
     font-size: 3.125vw; /* 60px; */
 }
 button {
@@ -122,11 +114,36 @@ img.icon {
     -webkit-user-select:none;
     user-select:none;
 }
+input {
+    color: var(--font-color);
+    background-color: unset;
+    border: none;
+    outline: none;
+    border-bottom: solid 3px var(--font-color);
+}
+input::placeholder {
+    color: var(--font-color);
+    opacity: 0.5;
+}
+/*************************자주쓰는 속성 모음 START*********************************/
+.center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.text-center {
+    text-align: center;
+}
 .text-overflow-hidden {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
 }
+.hidden {
+    display: none;
+}
+/*************************자주쓰는 속성 모음 END*********************************/
 /*************************header START*********************************/
 header {
     padding: 20px;
@@ -147,8 +164,6 @@ section#routine-title #current-title {
 }
 section#routine-title #current-title,
 section#routine-title #routine-list > li {
-    font-family: var(--point-font);
-    font-size: 60px; /* 3.125vw; */
     line-height: 112%;
     padding: 0 0 12px 15px;
     cursor: pointer;
@@ -221,7 +236,6 @@ section#routine-title #routine-list > li > button.delete-bt:hover img.icon {
 section#routine-title #routine-list > li > #add-routine-bt {
     background: unset;
     font-size: 36px;
-    display: block;
     width: calc(100% - 40px);
     text-align: center;
     padding: 0 0 10px;
@@ -232,6 +246,25 @@ section#routine-title #routine-list > li > #add-routine-bt:hover {
     color: var(--point-color2);
     text-shadow: 3px 3px 8px rgb(0 0 0 / 60%);
     transform: translateY(-3px);
+}
+section#routine-title #routine-list > li#add > #add-routine-form {
+    text-align: center;
+    padding: 0 0 0 10px;
+    font-size: 0;
+}
+section#routine-title #routine-list > li#add > #add-routine-form input {
+    display: inline-block;
+    box-sizing: border-box;
+    width: calc(100% - 50px);
+    font-size: 30px;
+    padding: 0 0 6px 10px;
+}
+section#routine-title #routine-list > li#add > #add-routine-form button {
+    display: inline-block;
+    vertical-align: top;
+    width: 40px;
+    height: 40px;
+    padding: 5px;
 }
 /*************************header END*********************************/
 
