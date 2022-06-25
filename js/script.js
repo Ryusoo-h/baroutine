@@ -54,6 +54,8 @@ function printTimeGauge(currentHour, currentMinutes, currentSeconds, startTime) 
     let timeGauge = startTimeForHour < 12 ? currentTimeForHour - startTimeForHour : currentTimeForHour + (24 - startTimeForHour);
     if(timeGauge < 0) {
         timeGauge += 24;
+    }else if(timeGauge > 24) {
+        timeGauge = timeGauge%24;
     }
     // console.log(timeGauge);
     // 시작시간으로부터 현재시간까지의 시간
