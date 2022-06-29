@@ -106,8 +106,8 @@ function printDuringTime (timeGauge, currentSeconds) {
 // 현재시간 출력
 function printNowTime (hours, minutes, midday) { 
     const nowTimeSpan = document.querySelectorAll('#time #now-time span');
-    nowTimeSpan[0].innerText = hours <= 12 ? hours : hours - 12;
-    nowTimeSpan[1].innerText = minutes;
+    nowTimeSpan[0].innerText = String(hours <= 12 ? hours : hours - 12).padStart(2, '0');
+    nowTimeSpan[1].innerText = String(minutes).padStart(2, '0');
     nowTimeSpan[2].innerText = midday;
 }
 
