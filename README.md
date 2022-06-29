@@ -1,7 +1,7 @@
  # ⏰Baroutine
 ## 바루틴(Baroutine) = ba른생활 + routine
 
-![Alt first-plan](./img/read%20me/first-plan.png "fist-plan")
+![first-plan](https://user-images.githubusercontent.com/67295471/176439575-11986d00-8ed8-4383-91f1-56abba96f4d1.png)
 
 <br><br>
 
