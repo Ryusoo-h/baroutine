@@ -5,19 +5,19 @@ const START_TIME = 'startTime';
 
 // 처음페이지에 들어오면 localStorage에서 저장했던 시간을 받아와야한다. 안받아오면 00: 00 AM 시작
 const StartTimeinLocalStorage = localStorage.getItem(START_TIME);
-let startTime = IsExist(StartTimeinLocalStorage) 
+let startTime = IsExist(StartTimeinLocalStorage)
     ? JSON.parse(StartTimeinLocalStorage)
     : {
         hour: 0,
         minutes: 0
     };
-printQuaterTime (startTime);
+printQuaterTime(startTime);
 
 /** TOAST UI Timepicker START */
 let tpSelectbox = new tui.TimePicker('#timepicker-selectbox', {
     // localStorage에서 저장했던 시간 받아옴. 안받아오면 00: 00 AM 시작
-    initialHour: IsExist(StartTimeinLocalStorage) ? startTime['hour'] : 0, //24시간 단위 0~23
-    initialMinute: IsExist(StartTimeinLocalStorage) ? startTime['minutes'] : 0,
+    initialHour: startTime['hour'], //24시간 단위 0~23
+    initialMinute: startTime['minutes'],
     minuteStep: 5, // 5분단위로
     format: 'hh:mm', // 2자리로
     inputType: 'selectbox',
@@ -27,6 +27,7 @@ tpSelectbox.on('change', (e) => { // 시간 변경시 시간을 받아와서 저
     startTime['minutes'] = e.minute;
     localStorage.setItem(START_TIME, JSON.stringify(startTime));
     printQuaterTime(startTime);
+    printTimeGaugeFirstTimetoFalse();
   });
 /** TOAST UI Timepicker END */
 
@@ -45,9 +46,11 @@ function printQuaterTime (startTime) {
     });
 }
 
-// 현재시간 게이지를 타임라인에 출력
-let printTimeGaugeFirstTime = true;
-function printTimeGauge(currentHour, currentMinutes, currentSeconds, startTime) { 
+let DoGaugeAnimation = true; // DoGaugeAnimation이 true일때 printTimeGauge 애니메이션이 실행됨
+function printTimeGaugeFirstTimetoFalse() { 
+    DoGaugeAnimation = true;
+}
+function printTimeGauge(currentHour, currentMinutes, currentSeconds, startTime) { //깨어있는 시간/게이지를 출력한다.
     const timeLine = document.querySelector('#timetable #time-line');
     const startTimeForHour = parseInt(startTime['hour']) + (parseInt(startTime['minutes']) / 60);
     const currentTimeForHour = parseInt(currentHour) + (parseInt(currentMinutes) / 60);
@@ -61,34 +64,53 @@ function printTimeGauge(currentHour, currentMinutes, currentSeconds, startTime) 
     // 시작시간으로부터 현재시간까지의 시간
     const degree = ((timeGauge/24) * 100) * 3.6;
     // 24시간을 360도로 맞춰 계산 : 시간게이지를 퍼센트로 만들고, 그 퍼센트를 각도로 만듬
-    if (printTimeGaugeFirstTime) { // 처음일경우 애니메이션효과
-        printTimeGaugeFirstTime = false;
-        const acceleration = 0.1; // 이값으로 속도 조절
-        let upDegree = 0;
+    function gaugeAnimation (startDegree, motion = 'slower', acceleration = 0.1) { // 애니메이션 실행함수
+        // upDegree : 게이지 시작점
+        // motion : 점점빨라지는/느려지는 애니메이션 선택 'faster' or 'slower'
+        // acceleration : 속도 조절
         const upDegreeArray = []; // 점점 빨라지는 애니메이션을 위한 array
         let out = 0;
-        for(let i = 0; out == 0; i++) {
-            upDegree += acceleration*i;
-            if (upDegree > degree) {
-                upDegree = degree;
-                out = 1;
+        let upDegree = startDegree;
+        let array;
+        if (upDegree > degree) {
+            for(let i = 0; out == 0; i++) {
+                upDegree -= acceleration*i;
+                if (upDegree < degree) {
+                    upDegree = degree;
+                    out = 1;
+                }
+                upDegreeArray.push(upDegree);
             }
-            upDegreeArray.push(upDegree);
+        } else {
+            for(let i = 0; out == 0; i++) {
+                upDegree += acceleration*i;
+                if (upDegree > degree) {
+                    upDegree = degree;
+                    out = 1;
+                }
+                upDegreeArray.push(upDegree);
+            }
         }
-        // 효과 반대로 하고싶다면..
-        const upDegreeArrayReverse = [] // 점점 느려지는 애니메이션을 위한 array
-        upDegreeArray.forEach(element => {
-            upDegreeArrayReverse.unshift(degree - element);
-        })
-
-        function Printanimation (array) { // 애니메이션 실행함수
-            array.forEach((element, index) => {
-                setTimeout(function() {
-                    timeLine.style.setProperty("--deg", `${element}deg`);
-                }, 10*index)
+        if (motion === 'faster') {
+            array = upDegreeArray;
+        } else if (motion === 'slower') {
+            const upDegreeArrayReverse = [] // 점점 느려지는 애니메이션을 위한 array
+            upDegreeArray.forEach(element => {
+                upDegreeArrayReverse.unshift(degree - element + startDegree);
             })
+            array = upDegreeArrayReverse;
         }
-        Printanimation(upDegreeArrayReverse);
+
+        array.forEach((element, index) => {
+            setTimeout(function() {
+                timeLine.style.setProperty("--deg", `${element}deg`);
+            }, 10*index)
+        })
+    }
+    if (DoGaugeAnimation) { // 처음일경우 애니메이션효과
+        DoGaugeAnimation = false;
+        let startDegree = parseFloat(timeLine.style.cssText.replace(/[^0-9.]/g, ""));
+        gaugeAnimation(startDegree, 'slower', 0.1);
     } else {
         timeLine.style.setProperty("--deg", `${degree}deg`);
     }
@@ -99,7 +121,7 @@ function printTimeGauge(currentHour, currentMinutes, currentSeconds, startTime) 
 function printDuringTime (timeGauge, currentSeconds) {
     const duringTimeSpan = document.querySelectorAll('#time #during-time span')
     duringTimeSpan[0].innerText = String(Math.floor(timeGauge)).padStart(2, '0');
-    duringTimeSpan[1].innerText = String(Math.ceil((timeGauge%1)*60)).padStart(2, '0');
+    duringTimeSpan[1].innerText = String(Math.floor((timeGauge%1)*60)).padStart(2, '0');
     duringTimeSpan[2].innerText = String(currentSeconds).padStart(2, '0');
 }
 
@@ -111,7 +133,7 @@ function printNowTime (hours, minutes, midday) {
     nowTimeSpan[2].innerText = midday;
 }
 
-function printEverySecond () {
+function printEverySecond () { //1초마다 실행될 것들 모음
     const date = new Date();
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
