@@ -27,7 +27,7 @@ tpSelectbox.on('change', (e) => { // 시간 변경시 시간을 받아와서 저
     startTime['minutes'] = e.minute;
     localStorage.setItem(START_TIME, JSON.stringify(startTime));
     printQuaterTime(startTime);
-    printTimeGaugeFirstTimetoFalse();
+    printGaugeWithAnimation();
   });
 /** TOAST UI Timepicker END */
 
@@ -47,7 +47,7 @@ function printQuaterTime (startTime) {
 }
 
 let DoGaugeAnimation = true; // DoGaugeAnimation이 true일때 printTimeGauge 애니메이션이 실행됨
-function printTimeGaugeFirstTimetoFalse() { 
+function printGaugeWithAnimation() { 
     DoGaugeAnimation = true;
 }
 function printTimeGauge(currentHour, currentMinutes, currentSeconds, startTime) { //깨어있는 시간/게이지를 출력한다.
