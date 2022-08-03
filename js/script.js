@@ -1,21 +1,19 @@
 
 /********************* header START ******************/
-function routineListShow(element) {
-    const routineList = document.querySelector('#routine-list');
-    const routineListNum = routineList.querySelectorAll('li:not(#add)').length;
+const ROUTINE_LIST_EL = document.querySelector('#routine-list'); // 이전에 routineList 였음
+function showRoutineList() { //루틴 리스트 여닫기
+    const routineListNum = ROUTINE_LIST_EL.querySelectorAll('li:not(#add)').length;
     const button = document.querySelector('#routine-list-show-bt');
-    function toggle () { // 아마 다른곳에도 쓴다면 이 토글을 밖으로 빼서 사용해야할거같음!!!! 쉽게될듯!
-        console.log('toggle 실행');
-        element.classList.toggle('on'); // popup 
-        element.classList.toggle('popUp'); // 열린 popup임을 표시
-        routineList.classList.toggle('popUpContents'); // 열린 popupContents임을 표시
-        if (button.classList.contains('on')) {
-            routineList.style.height = `${88*routineListNum + 72}px`;
-        } else {
-            routineList.removeAttribute('style');
-        }
+    //console.log('toggle 실행');
+    button.classList.toggle('on'); // popup 
+    button.classList.toggle('popUp'); // 열린경우 popUp을 클래스로 가짐
+    ROUTINE_LIST_EL.classList.toggle('popUpContents'); // 열린경우 팝업콘텐츠가 popupContents를 클래스로 가짐
+    if (button.classList.contains('on')) {
+        ROUTINE_LIST_EL.style.height = `${88*routineListNum + 72}px`;
+    } else {
+        ROUTINE_LIST_EL.removeAttribute('style');
+        closeRoutineForm();
     }
-    toggle();
 }
 document.querySelector('html').addEventListener('click', function (event) {
     if (document.querySelector('.popUp') !== null ) {
@@ -24,114 +22,126 @@ document.querySelector('html').addEventListener('click', function (event) {
             return;
         } else {/*그외 클릭시 정보 닫기 */
             console.log('그외클릭');
-            routineListShow(document.querySelector('.popUp'));
+            showRoutineList();
         }
     }
 });
 /********************* header END ******************/
 /********************* routine-data START ******************/
 const USER_ROUTINE = "userRoutine";
-function saveRoutineList () {
-    localStorage.setItem(USER_ROUTINE, JSON.stringify(routineArray)); // localStorage에도 반영!
+function saveRoutineList () { // localStorage에 새 루틴 저장.
+    localStorage.setItem(USER_ROUTINE, JSON.stringify(routineArray)); 
 }
-function ReturnRoutineList (index, current) {
-    current = current ? 'current' : '';
-    const li = `<li class="${current} text-overflow-hidden"><h1 class="r-title text-overflow-hidden" id = "${routineArray[index]['id']}">${routineArray[index]['title']}</h1><button class="delete-bt" onclick="routineDelete(this)"><img class="icon" src="./img/ic-delete-bgcolor.svg" alt="delete-button-icon"></button></li>`;
+function returnRoutineList (index, current = false) {
+    const li = `<li class="${current===true?'current':''}">
+        <h1 class="r-title text-overflow-hidden" id="${routineArray[index]['id']}">${routineArray[index]['title']}</h1>
+            <button class="delete-bt" onclick="routineDelete(this)"><img class="icon" src="./img/ic-delete-bgcolor.svg" alt="delete-button-icon"></button>
+        </li>`;
     return li;
 }
-let routineArray;
-if (localStorage.getItem(USER_ROUTINE) == null) { // 로컬스토리지에 저장된것이 없으면
-    routineArray = [{title: 'Routine Title1', id: Date.now(), current: true}]; // 초기 기본값
-    saveRoutineList ();
-} else { // 로컬에 저장된것이 있으면 출력!
-    routineArray = JSON.parse(localStorage.getItem(USER_ROUTINE));
-    const currentTitle = document.querySelector('#routine-title #current-title');
-    let currentRoutineNum = routineArray.findIndex((element) => element['current'] === true);// 현재 루틴(current: true)이 무엇인지 index로 저장
-    currentTitle.innerText = `${routineArray[currentRoutineNum]['title']}`;
-    const addList = document.querySelector('#routine-list #add');
-    routineArray.forEach((element, index) => {
-        if(index === currentRoutineNum) {
-            addList.insertAdjacentHTML('beforebegin', ReturnRoutineList(index, true));
-        } else {
-            addList.insertAdjacentHTML('beforebegin', ReturnRoutineList(index, false));
+let routineArray = []; // 루틴 배열
+(function printRoutineListFirstTime () {
+    if (localStorage.getItem(USER_ROUTINE) == null) { // 로컬스토리지에 저장된것이 없으면
+        routineArray = [{title: 'Routine Title1', id: Date.now(), current: true}]; // 초기 기본값
+        saveRoutineList ();
+    } 
+    if (localStorage.getItem(USER_ROUTINE) !== null) { // 로컬에 저장된것이 있으면 출력!
+        routineArray = JSON.parse(localStorage.getItem(USER_ROUTINE));
+        const currentTitle = document.querySelector('#routine-title #current-title');
+        let currentRoutineNum = routineArray.findIndex((element) => element['current'] === true);// 현재 루틴(current: true)이 무엇인지 index로 저장
+        currentTitle.innerText = `${routineArray[currentRoutineNum]['title']}`; // 현재 루틴 타이틀 출력
+        const addList = ROUTINE_LIST_EL.querySelector('#add');
+        routineArray.forEach((element, index) => {
+            index === currentRoutineNum ? 
+                addList.insertAdjacentHTML('beforebegin', returnRoutineList(index, true)) : addList.insertAdjacentHTML('beforebegin', returnRoutineList(index));
+        })
+        const routineListArray = ROUTINE_LIST_EL.querySelectorAll('li:not(#add) > h1');
+        routineListArray.forEach(element => currentTitleChagne(element));
+    }
+})();
+
+function currentTitleChagne(element) { // 루틴리스트에 클릭시 현재 타이틀 표시하는 이벤트를 추가함
+    element.addEventListener('click', function () {
+        if (element.parentNode.classList.contains('current')) {
+            return;
         }
+        showRoutineList(); // 우선 리스트를 닫는다
+        const currentTitle = document.querySelector('#routine-title #current-title');
+        const clickedId = element.getAttribute('id');// 클릭된 element의 id 구하기
+
+        // 이전에 current: true였던것을 false로 돌려놓고
+        let currentRoutineNum = routineArray.findIndex((element) => element['current'] === true);
+        routineArray[currentRoutineNum]['current'] = false; 
+        document.getElementById(`${routineArray[currentRoutineNum]['id']}`).parentNode.classList.remove('current');
+
+        // 새로 클릭된것을 current: true로 변경 출력
+        currentRoutineNum = routineArray.findIndex((element) => element['id'] == clickedId);
+        routineArray[currentRoutineNum]['current'] = true;
+        document.getElementById(`${routineArray[currentRoutineNum]['id']}`).parentNode.classList.add('current');
+        currentTitle.innerText = routineArray[currentRoutineNum]['title']; // 클릭된 element의 타이틀 출력
+        saveRoutineList ();
     })
 }
-function showRoutineForm (button, form) { // 루틴form 여닫음
-    button = button == undefined ? document.querySelector('#routine-list #add #add-routine-bt') : button;
-    form = form == undefined ? document.querySelector('#routine-list #add #add-routine-form') : form;
-    button.classList.toggle("hidden");
+
+const addList = ROUTINE_LIST_EL.querySelector('#add');
+const addbutton = addList.querySelector('#add-routine-bt');
+const form = addList.querySelector('#add-routine-form');
+const input = addList.querySelector('#add-routine-form > input');
+function showRoutineForm() { // 루틴입력 form 여닫음
+    addbutton.classList.toggle("hidden");
     form.classList.toggle("hidden");
+    if(!form.classList.contains("hidden")) {
+        input.focus();
+    } else {
+        input.blur();
+    }
+}
+function closeRoutineForm() { // 루틴입력 form 닫음
+    if(addbutton.classList.contains("hidden")) {
+        addbutton.classList.remove("hidden");
+    }
+    if(!form.classList.contains("hidden")) {
+        form.classList.add("hidden");
+    }
 }
 function addRoutineData (event) { //새 루틴을 생성함
     event.preventDefault();
-    
-    const routineList = document.querySelector('#routine-list');
-    if(routineList === null) {
+    if(ROUTINE_LIST_EL === null) {
         return;
     }
-    const addList = routineList.querySelector('#add');
-    const addbutton = addList.querySelector('#add-routine-bt');
-    const form = addList.querySelector('#add-routine-form');
-    const input = addList.querySelector('#routine-list #add #add-routine-form > input');
-    const data = input.value;
+    let data = input.value;
     if (data == "" || data.trim() == "") {
-        alert('공백은 타이틀이 될 수 없습니다!');
-        showRoutineForm (addbutton, form);
+        alert('공백은 타이틀이 될 수 없습니다!'); /*** alert말고 예쁜 공지로 바꿔야함 ****/
     } else {
         routineArray.forEach((element) => {
             element['current'] = false;
         })
-        routineArray.push({title: data, id: Date.now(), current: true});
-        const li = `<li class="current text-overflow-hidden"><h1 class="r-title text-overflow-hidden" id = "${routineArray.at(-1)['id']}">${routineArray.at(-1)['title']}</h1><button class="delete-bt" onclick="routineDelete(this)"><img class="icon" src="./img/ic-delete-bgcolor.svg" alt="delete-button-icon"></button></li>`;
-        routineListShow(document.querySelector('.popUp'));
-        const currentTitle = document.querySelector('#routine-title #current-title');
-        currentTitle.innerText = data;
-        saveRoutineList ();
-        /**
-         * 이 자리에 들어가야할것!
-         * 1. localStorage에 새 루틴 생성 실행 ✅
-         * 2. 루틴 추가/수정 페이지 여는 함수실행
-         * 3. 지금 이름의 루틴을 기억해서 추가/수정된것을 localStorage에 저장하도록 하는 함수실행
-         */
+    routineArray.push({title: data, id: Date.now(), current: true});
+    let lastIndex = routineArray.length - 1;
+    showRoutineList();
+    const currentTitle = document.querySelector('#routine-title #current-title');
+    currentTitle.innerText = data;
+    saveRoutineList();
+    /**
+     * 이 자리에 들어가야할것!
+     * 1. localStorage에 새 루틴 생성 실행 ✅
+     * 2. 루틴 내용 추가/수정 페이지 여는 함수실행
+     * 3. 지금 이름의 루틴을 기억해서 추가/수정된것을 localStorage에 저장하도록 하는 함수실행
+     */
         setTimeout(function() {
-            routineList.querySelector('li.current').classList.remove('current');
-            addList.insertAdjacentHTML('beforebegin', li);
+            ROUTINE_LIST_EL.querySelector('li.current').classList.remove('current');
+            addList.insertAdjacentHTML('beforebegin', returnRoutineList(lastIndex,true));
             input.value = "";
-            showRoutineForm (addbutton, form);
+            currentTitleChagne(ROUTINE_LIST_EL.querySelector("li.current > h1"));
+            closeRoutineForm();
         }, 300)
     }
     // 이 받아온 data가 routine 타이틀! 이걸 저장한다.
 }
-
-function displayCurrentTitle () { // 리스트에서 현재 타이틀 표시
-    const routineListArray = document.querySelectorAll('#routine-title #routine-list > li:not(#add) > h1');
-    routineListArray.forEach((element)=> {
-        element.addEventListener('click', function () {
-            if (element.parentNode.classList.contains('current')) {
-                return;
-            }
-            routineListShow(document.querySelector('.popUp')); // 1. 우선 리스트를 닫는다
-            const currentTitle = document.querySelector('#routine-title #current-title');
-            const clickedId = element.getAttribute('id');// 클릭된 element의 id 구하기
-
-            // 이전에 current: true였던것을 false로 돌려놓고
-            let currentRoutineNum = routineArray.findIndex((element) => element['current'] === true);
-            routineArray[currentRoutineNum]['current'] = false; 
-            document.getElementById(`${routineArray[currentRoutineNum]['id']}`).parentNode.classList.remove('current');
-
-            // 새로 클릭된것을 current: true로 변경 출력
-            currentRoutineNum = routineArray.findIndex((element) => element['id'] == clickedId);
-            routineArray[currentRoutineNum]['current'] = true;
-            document.getElementById(`${routineArray[currentRoutineNum]['id']}`).parentNode.classList.add('current');
-            currentTitle.innerText = routineArray[currentRoutineNum]['title']; // 클릭된 element의 타이틀 출력
-            saveRoutineList ();
-        })
-    })
-}
-displayCurrentTitle ();
-// 해야하는것
-// 새로운 list를 만들었을때 그떄 addEventListener를 추가해줘야하는데 이문제!! 해결하자!!
+/**
+ * 루틴타이틀을 삭제하는 버튼에 이벤트 추가
+ * 루틴타이틀을 수정하는 버튼추가하고 그버튼에 이벤트 추가
+ */
 /********************* routine-data END ******************/
 /********************* article routine START ******************/
 
