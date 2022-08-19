@@ -150,6 +150,10 @@ const IsExist = (something) => {
 }
 const START_TIME = 'startTime';
 
+function makeTwoDigits(num) {
+    return String(num).padStart(2, '0'); // 두자리 문자열로 반환함. 00, 01, 02 ... 12 등
+}
+
 // 처음페이지에 들어오면 localStorage에서 저장했던 시간을 받아와야한다. 안받아오면 00: 00 AM 시작
 const StartTimeinLocalStorage = localStorage.getItem(START_TIME);
 let startTime = IsExist(StartTimeinLocalStorage)
@@ -174,7 +178,6 @@ tpSelectbox.on('change', (e) => { // 시간 변경시 시간을 받아와서 저
     startTime['minutes'] = e.minute;
     localStorage.setItem(START_TIME, JSON.stringify(startTime));
     printQuaterTime(startTime);
-    printGaugeWithAnimation();
   });
 /** TOAST UI Timepicker END */
 
@@ -189,15 +192,13 @@ function printQuaterTime (startTime) {
     }
     quaterHourArray.forEach((element, index) => {
         let midday = (Math.floor(element/12))%2 == true ? 'PM' : 'AM';
-        quaterTimeList[index].innerText = `${element%12}:${String(startTime['minutes']).padStart(2, '0')}${midday}`;
+        quaterTimeList[index].innerText = `${element%12}:${makeTwoDigits(startTime['minutes'])}${midday}`;
     });
 }
 
-let DoGaugeAnimation = true; // DoGaugeAnimation이 true일때 printTimeGauge 애니메이션이 실행됨
-function printGaugeWithAnimation() { 
-    DoGaugeAnimation = true;
-}
-function printTimeGauge(currentHour, currentMinutes, currentSeconds, startTime) { //깨어있는 시간/게이지를 출력한다.
+// 현재시간 게이지를 타임라인에 출력
+let printTimeGaugeFirstTime = true;
+function printTimeGauge(currentHour, currentMinutes, currentSeconds, startTime) { 
     const timeLine = document.querySelector('#timetable #time-line');
     const startTimeForHour = parseInt(startTime['hour']) + (parseInt(startTime['minutes']) / 60);
     const currentTimeForHour = parseInt(currentHour) + (parseInt(currentMinutes) / 60);
@@ -211,53 +212,34 @@ function printTimeGauge(currentHour, currentMinutes, currentSeconds, startTime) 
     // 시작시간으로부터 현재시간까지의 시간
     const degree = ((timeGauge/24) * 100) * 3.6;
     // 24시간을 360도로 맞춰 계산 : 시간게이지를 퍼센트로 만들고, 그 퍼센트를 각도로 만듬
-    function gaugeAnimation (startDegree, motion = 'slower', acceleration = 0.1) { // 애니메이션 실행함수
-        // upDegree : 게이지 시작점
-        // motion : 점점빨라지는/느려지는 애니메이션 선택 'faster' or 'slower'
-        // acceleration : 속도 조절
+    if (printTimeGaugeFirstTime) { // 처음일경우 애니메이션효과
+        printTimeGaugeFirstTime = false;
+        const acceleration = 0.1; // 이값으로 속도 조절
+        let upDegree = 0;
         const upDegreeArray = []; // 점점 빨라지는 애니메이션을 위한 array
         let out = 0;
-        let upDegree = startDegree;
-        let array;
-        if (upDegree > degree) {
-            for(let i = 0; out == 0; i++) {
-                upDegree -= acceleration*i;
-                if (upDegree < degree) {
-                    upDegree = degree;
-                    out = 1;
-                }
-                upDegreeArray.push(upDegree);
+        for(let i = 0; out == 0; i++) {
+            upDegree += acceleration*i;
+            if (upDegree > degree) {
+                upDegree = degree;
+                out = 1;
             }
-        } else {
-            for(let i = 0; out == 0; i++) {
-                upDegree += acceleration*i;
-                if (upDegree > degree) {
-                    upDegree = degree;
-                    out = 1;
-                }
-                upDegreeArray.push(upDegree);
-            }
+            upDegreeArray.push(upDegree);
         }
-        if (motion === 'faster') {
-            array = upDegreeArray;
-        } else if (motion === 'slower') {
-            const upDegreeArrayReverse = [] // 점점 느려지는 애니메이션을 위한 array
-            upDegreeArray.forEach(element => {
-                upDegreeArrayReverse.unshift(degree - element + startDegree);
-            })
-            array = upDegreeArrayReverse;
-        }
-
-        array.forEach((element, index) => {
-            setTimeout(function() {
-                timeLine.style.setProperty("--deg", `${element}deg`);
-            }, 10*index)
+        // 효과 반대로 하고싶다면..
+        const upDegreeArrayReverse = [] // 점점 느려지는 애니메이션을 위한 array
+        upDegreeArray.forEach(element => {
+            upDegreeArrayReverse.unshift(degree - element);
         })
-    }
-    if (DoGaugeAnimation) { // 처음일경우 애니메이션효과
-        DoGaugeAnimation = false;
-        let startDegree = parseFloat(timeLine.style.cssText.replace(/[^0-9.]/g, ""));
-        gaugeAnimation(startDegree, 'slower', 0.1);
+
+        function Printanimation (array) { // 애니메이션 실행함수
+            array.forEach((element, index) => {
+                setTimeout(function() {
+                    timeLine.style.setProperty("--deg", `${element}deg`);
+                }, 10*index)
+            })
+        }
+        Printanimation(upDegreeArrayReverse);
     } else {
         timeLine.style.setProperty("--deg", `${degree}deg`);
     }
@@ -267,24 +249,24 @@ function printTimeGauge(currentHour, currentMinutes, currentSeconds, startTime) 
 // 깨어있는 시간 출력
 function printDuringTime (timeGauge, currentSeconds) {
     const duringTimeSpan = document.querySelectorAll('#time #during-time span')
-    duringTimeSpan[0].innerText = String(Math.floor(timeGauge)).padStart(2, '0');
-    duringTimeSpan[1].innerText = String(Math.floor((timeGauge%1)*60)).padStart(2, '0');
-    duringTimeSpan[2].innerText = String(currentSeconds).padStart(2, '0');
+    duringTimeSpan[0].innerText = makeTwoDigits(Math.floor(timeGauge));
+    duringTimeSpan[1].innerText = makeTwoDigits(Math.ceil((timeGauge%1)*60));
+    duringTimeSpan[2].innerText = makeTwoDigits(currentSeconds);
 }
 
 // 현재시간 출력
 function printNowTime (hours, minutes, midday) { 
     const nowTimeSpan = document.querySelectorAll('#time #now-time span');
-    nowTimeSpan[0].innerText = String(hours <= 12 ? hours : hours - 12).padStart(2, '0');
-    nowTimeSpan[1].innerText = String(minutes).padStart(2, '0');
-    nowTimeSpan[2].innerText = midday;
+    nowTimeSpan[0].innerText = hours <= 12 ?  makeTwoDigits(hours) :  makeTwoDigits(hours - 12);
+    nowTimeSpan[1].innerText = makeTwoDigits(minutes);
+    nowTimeSpan[2].innerText = makeTwoDigits(midday);
 }
 
 function printEverySecond () { //1초마다 실행될 것들 모음
     const date = new Date();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
+    const hours = makeTwoDigits(date.getHours());
+    const minutes = makeTwoDigits(date.getMinutes());
+    const seconds = makeTwoDigits(date.getSeconds());
     const midday = hours <= 12 ? 'AM' : 'PM';
     printNowTime(hours, minutes, midday);
     printTimeGauge(hours, minutes, seconds, startTime);
